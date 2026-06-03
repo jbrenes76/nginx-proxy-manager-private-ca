@@ -1,4 +1,4 @@
-FROM jc21/nginx-proxy-manager:latest
+FROM jc21/nginx-proxy-manager:2.15.0
 
 COPY 80-private-ca.sh /etc/s6-overlay/s6-rc.d/prepare/80-private-ca.sh
 
