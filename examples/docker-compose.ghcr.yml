@@ -1,0 +1,15 @@
+services:
+  npm:
+    image: ghcr.io/jbrenes76/nginx-proxy-manager-private-ca:latest
+    container_name: npm-private-ca
+    ports:
+      - '80:80'
+      - '81:81'
+      - '443:443'
+    environment:
+      - ACME_SERVER=https://ca.home.arpa:9000/acme/acme/directory
+      - ACME_WEBROOT=/data/letsencrypt-acme-challenge
+    volumes:
+      - ./npm/data:/data
+      - ./npm/letsencrypt:/etc/letsencrypt
+      - ./ca-certs:/usr/local/share/ca-certificates:ro
