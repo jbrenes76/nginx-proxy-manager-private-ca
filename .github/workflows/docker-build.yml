@@ -1,10 +1,14 @@
-name: Docker Build
+name: Docker Build and Publish
 
 on:
   push:
     branches:
       - master
   pull_request:
+
+permissions:
+  contents: read
+  packages: write
 
 jobs:
   build:
@@ -14,5 +18,17 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        if: github.event_name != 'pull_request'
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Build Docker image
-        run: docker build -t nginx-proxy-manager-private-ca:test ./docker
+        run: docker build -t ghcr.io/jbrenes76/nginx-proxy-manager-private-ca:latest ./docker
+
+      - name: Push Docker image
+        if: github.event_name != 'pull_request'
+        run: docker push ghcr.io/jbrenes76/nginx-proxy-manager-private-ca:latest
