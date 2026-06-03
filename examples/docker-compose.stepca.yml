@@ -1,0 +1,41 @@
+# Example: Nginx Proxy Manager Private CA with StepCA
+#
+# This is an example layout.
+# It assumes you already have a working StepCA configuration.
+#
+# This project does not create your CA.
+# It only helps Nginx Proxy Manager talk to an existing private ACME CA.
+
+services:
+npm:
+image: jbrenes76/nginx-proxy-manager-private-ca:latest
+container_name: npm-private-ca
+restart: unless-stopped
+
+ports:
+  - '80:80'
+  - '81:81'
+  - '443:443'
+
+environment:
+  # Private ACME directory URL.
+  # Example for StepCA:
+  - ACME_SERVER=https://ca.home.arpa:9000/acme/acme/directory
+
+  # Optional. Only required if your ACME CA uses External Account Binding.
+  - ACME_EAB_KID=
+  - ACME_EAB_HMAC_KEY=
+
+  # Optional. Defaults to /data/letsencrypt-acme-challenge.
+  - ACME_WEBROOT=/data/letsencrypt-acme-challenge
+
+volumes:
+  # Nginx Proxy Manager persistent data.
+  - ./npm/data:/data
+
+  # Certificate storage.
+  - ./npm/letsencrypt:/etc/letsencrypt
+
+  # Private CA certificates mounted into the container trust store.
+  # Put your Root CA and any Intermediate CA certificates here.
+  - ./ca-certs:/usr/local/share/ca-certificates:ro
