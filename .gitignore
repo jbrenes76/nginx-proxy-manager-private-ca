@@ -1,7 +1,11 @@
 # Runtime data
 examples/npm/
 examples/letsencrypt/
-examples/ca-certs/
+
+# Certificates
+examples/ca-certs/*
+!examples/ca-certs/
+!examples/ca-certs/README.md
 
 # Logs
 *.log
