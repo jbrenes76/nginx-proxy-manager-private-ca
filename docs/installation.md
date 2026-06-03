@@ -22,6 +22,7 @@ Its purpose is to help Nginx Proxy Manager request certificates from your existi
 - A private ACME server URL
 - Local DNS records pointing to your NPM server
 - Root CA installed on client devices
+- CA certificates required to trust the private ACME server available for the NPM container
 
 ## Required Environment Variables
 
@@ -62,3 +63,24 @@ services:
       - ./letsencrypt:/etc/letsencrypt
       - ./ca-certs:/usr/local/share/ca-certificates:ro
 ```
+
+## CA Certificates
+
+The Nginx Proxy Manager container must trust the certificate presented by your private ACME server.
+
+Place the CA certificates required to trust your private ACME server in the directory mounted to:
+
+```yaml
+/usr/local/share/ca-certificates
+```
+
+Typical files include:
+
+```text
+root-ca.crt
+intermediate-ca.crt
+```
+
+The container automatically imports these certificates during startup.
+
+Do not place private keys in this directory.
