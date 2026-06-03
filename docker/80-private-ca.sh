@@ -12,12 +12,14 @@ mkdir -p "${ACME_WEBROOT}/.well-known/acme-challenge"
 if [ -n "${ACME_SERVER:-}" ]; then
   echo "[80-private-ca] Creating /etc/letsencrypt.ini"
 
-  cat > /etc/letsencrypt.ini <<EOF
-server = ${ACME_SERVER}
-eab-kid = ${ACME_EAB_KID:-}
-eab-hmac-key = ${ACME_EAB_HMAC_KEY:-}
-webroot-path = ${ACME_WEBROOT}
-EOF
+  printf 'server = %s\n' "${ACME_SERVER}" > /etc/letsencrypt.ini
+  printf 'webroot-path = %s\n' "${ACME_WEBROOT}" >> /etc/letsencrypt.ini
+
+  if [ -n "${ACME_EAB_KID:-}" ] && [ -n "${ACME_EAB_HMAC_KEY:-}" ]; then
+    printf 'eab-kid = %s\n' "${ACME_EAB_KID}" >> /etc/letsencrypt.ini
+    printf 'eab-hmac-key = %s\n' "${ACME_EAB_HMAC_KEY}" >> /etc/letsencrypt.ini
+    echo "[80-private-ca] EAB credentials written"
+  fi
 
   chmod 600 /etc/letsencrypt.ini
   echo "[80-private-ca] /etc/letsencrypt.ini created"
