@@ -28,9 +28,18 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Set Docker image tag
+        id: vars
+        run: |
+          if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
+            echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+          else
+            echo "tag=latest" >> $GITHUB_OUTPUT
+          fi
+
       - name: Build Docker image
-        run: docker build -t ghcr.io/jbrenes76/nginx-proxy-manager-private-ca:latest ./docker
+        run: docker build -t ghcr.io/jbrenes76/nginx-proxy-manager-private-ca:${{ steps.vars.outputs.tag }} ./docker
 
       - name: Push Docker image
         if: github.event_name != 'pull_request'
-        run: docker push ghcr.io/jbrenes76/nginx-proxy-manager-private-ca:latest
+        run: docker push ghcr.io/jbrenes76/nginx-proxy-manager-private-ca:${{ steps.vars.outputs.tag }}
