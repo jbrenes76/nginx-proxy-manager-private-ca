@@ -1,41 +1,55 @@
-# Example: Nginx Proxy Manager Private CA with StepCA
+# Example: Nginx Proxy Manager Private CA with an existing StepCA server
 #
-# This is an example layout.
-# It assumes you already have a working StepCA configuration.
+# This example builds the Docker image locally from this repository.
+# It does NOT assume the image already exists on Docker Hub or GHCR.
 #
-# This project does not create your CA.
-# It only helps Nginx Proxy Manager talk to an existing private ACME CA.
+# Folder layout expected:
+#
+# nginx-proxy-manager-private-ca/
+# ├── docker/
+# │   ├── Dockerfile
+# │   └── 80-private-ca.sh
+# └── examples/
+#     └── docker-compose.stepca.yml
+#
+# Run from the examples folder:
+#
+# docker compose -f docker-compose.stepca.yml up -d --build
 
 services:
-npm:
-image: jbrenes76/nginx-proxy-manager-private-ca:latest
-container_name: npm-private-ca
-restart: unless-stopped
+  npm:
+    build:
+      context: ../docker
+      dockerfile: Dockerfile
 
-ports:
-  - '80:80'
-  - '81:81'
-  - '443:443'
+    image: nginx-proxy-manager-private-ca:local
+    container_name: npm-private-ca
+    restart: unless-stopped
 
-environment:
-  # Private ACME directory URL.
-  # Example for StepCA:
-  - ACME_SERVER=https://ca.home.arpa:9000/acme/acme/directory
+    ports:
+      - '80:80'
+      - '81:81'
+      - '443:443'
 
-  # Optional. Only required if your ACME CA uses External Account Binding.
-  - ACME_EAB_KID=
-  - ACME_EAB_HMAC_KEY=
+    environment:
+      # Private ACME directory URL.
+      # Example for StepCA:
+      - ACME_SERVER=https://ca.home.arpa:9000/acme/acme/directory
 
-  # Optional. Defaults to /data/letsencrypt-acme-challenge.
-  - ACME_WEBROOT=/data/letsencrypt-acme-challenge
+      # Optional. Only required if your ACME CA uses External Account Binding.
+      - ACME_EAB_KID=
+      - ACME_EAB_HMAC_KEY=
 
-volumes:
-  # Nginx Proxy Manager persistent data.
-  - ./npm/data:/data
+      # Optional. Defaults to /data/letsencrypt-acme-challenge.
+      - ACME_WEBROOT=/data/letsencrypt-acme-challenge
 
-  # Certificate storage.
-  - ./npm/letsencrypt:/etc/letsencrypt
+    volumes:
+      # Nginx Proxy Manager persistent data.
+      - ./npm/data:/data
 
-  # Private CA certificates mounted into the container trust store.
-  # Put your Root CA and any Intermediate CA certificates here.
-  - ./ca-certs:/usr/local/share/ca-certificates:ro
+      # Certificate storage.
+      - ./npm/letsencrypt:/etc/letsencrypt
+
+      # Private CA certificates mounted into the container trust store.
+      # Put your Root CA and any Intermediate CA certificates here.
+      - ./ca-certs:/usr/local/share/ca-certificates:ro

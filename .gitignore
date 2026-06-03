@@ -1,0 +1,14 @@
+# Runtime data
+examples/npm/
+examples/letsencrypt/
+examples/ca-certs/
+
+# Logs
+*.log
+
+# VS Code
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
